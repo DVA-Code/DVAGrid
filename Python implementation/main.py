@@ -6,6 +6,7 @@ import cartopy.crs as ccrs
 import math
 import matplotlib.ticker as mticker
 import folium
+from folium.plugins import AntPath
 import time 
 import paho.mqtt.client as mqtt
 import json
@@ -55,6 +56,10 @@ map = folium.Map(location=(27.619013147338894, 85.5387356168638),
 
 # add a layer to plot the distribution grid
 grid_layer = folium.FeatureGroup(name='Grid Layer').add_to(map)
+# folium.LayerControl().add_to(map)
+
+# add a layer for animation
+animation_layer = folium.FeatureGroup(name='Animation').add_to(map)
 folium.LayerControl().add_to(map)
 
 # get coordinates of all the buses in the network
@@ -210,6 +215,12 @@ def load_flow():
                                     (network.buses.loc[bus1].y, network.buses.loc[bus1].x)],
                             color = line_color,
                         tooltip= tooltip_text).add_to(grid_layer)
+            
+            AntPath([(network.buses.loc[bus0].y, network.buses.loc[bus0].x), 
+                                        (network.buses.loc[bus1].y, network.buses.loc[bus1].x)], 
+                    delay = 1200, dash_array=(3,10), 
+                    color=line_color, pulse_color='#FFFFFF',
+                    weight=3, opacity=1.0).add_to(animation_layer)
     
         # add a line between HVB and LVB1 as PyPSA doesn't create a line between the buses if there is a transformer in between
         folium.PolyLine(locations=[(network.buses.loc['HVB'].y, network.buses.loc['HVB'].x), 
