@@ -180,7 +180,6 @@ def load_flow():
                         fill=True, fill_color= bus_color, fill_opacity=1.0,
                         popup=folium.Popup(popup_text, max_width=100)).add_to(grid_layer)
     
-    
         # add lines
         for index, row in network.lines.iterrows():
             # get the name of the line
@@ -206,19 +205,81 @@ def load_flow():
             else:
                 # red if line loading is greater than 100%
                 line_color = 'red'
-    
+
+            # set line weight relative to percentage loading
+            line_weight = 2.0 + percentage_loading*4/100
             # tooltip text for the line
             tooltip_text = f'<span style="font-weight: bold; padding-left: 0px">{line_name}</span><br>P = {line_p: .3f} MW<br>Q = {line_q:.3f} MVAr<br>loading = {percentage_loading: .3f}%'
             # finally, add the line
             # latitude first then longitude
             folium.PolyLine(locations=[(network.buses.loc[bus0].y, network.buses.loc[bus0].x), 
                                     (network.buses.loc[bus1].y, network.buses.loc[bus1].x)],
-                            color = line_color,
+                            color = line_color, weight  = line_weight,
                         tooltip= tooltip_text).add_to(grid_layer)
             
-            AntPath([(network.buses.loc[bus0].y, network.buses.loc[bus0].x), 
-                                        (network.buses.loc[bus1].y, network.buses.loc[bus1].x)], 
-                    delay = 1200, dash_array=(3,10), 
+            x1, y1 = network.buses.loc[bus0].x, network.buses.loc[bus0].y  #first point of the line
+            x2, y2 = network.buses.loc[bus1].x, network.buses.loc[bus1].y  #second point
+            x3, y3 = (x1+x2)/2, (y1+y2)/2     # mid point
+            m = (y2-y1)/(x2-x1)     #slope
+            l = math.sqrt(pow(x2-x1, 2) + pow(y2-y1, 2))    #line length
+            al = l/8    #arrow length
+            # print(f'{line_name}: slope = {m}  & length = {l}')
+            theta = math.atan(m)
+            theta = abs(theta)
+            phi = math.pi/8     # angle between the main line and the arrow lines 
+            p = al*math.sin(theta)
+            b = al*math.cos(theta)
+            p1= al*math.tan(phi)
+            b1= p1*math.cos(theta)
+            k1= b1*math.tan(theta)
+            p2 = p1
+            b2 = b1
+            k2 = k1
+            if (x1<x2) and (y1<y2):
+                # coordinates for arrowheads to the lines having positive slope, arrowhead pointing upwards
+                xprime=x3-b
+                yprime=y3-p
+                x4=xprime-k1
+                y4=yprime+b1
+                x5=xprime+k2
+                y5=yprime-b2
+
+            elif (x1<x2) and (y1>y2):
+                 # coordinates for arrowheads to the lines having negative slope, arrowhead pointing downwards
+                xprime=x3-b
+                yprime=y3+p
+                x4=xprime+k1
+                y4=yprime+b1
+                x5=xprime-k2
+                y5=yprime-b2
+
+            elif (x1>x2) and (y1<y2):
+                # coordinates for arrowheads to the lines having negative slope, arrowhead pointing upwards
+                xprime=x3+b
+                yprime=y3-p
+                x4=xprime-k1
+                y4=yprime-b1
+                x5=xprime+k2
+                y5=yprime+b2
+
+            elif (x1>x2) and (y1>y2):
+                # coordinates for arrowheads to the lines having positive slope, arrowhead pointing downwards
+                xprime=x3+b
+                yprime=y3+p
+                x4=xprime+k1
+                y4=yprime-b1
+                x5=xprime-k2
+                y5=yprime+b2
+
+            # use triangles as arrowheads
+            folium.Polygon(locations=[(y4, x4), (y3, x3), (y5, x5)],
+                     color= line_color, weight=2.0,
+              fill=True, fill_color = line_color, fill_opacity=0.8).add_to(grid_layer)
+
+            # Use AntPath for animation
+            # coordinates - first latitude(y) then longitude(x)
+            AntPath([(y1, x1), (y2, x2)], 
+                    delay = 400, dash_array=(3,10), 
                     color=line_color, pulse_color='#FFFFFF',
                     weight=3, opacity=1.0).add_to(animation_layer)
     
@@ -243,7 +304,7 @@ def load_flow():
 
 
 #create a thread to handle the data operations
-#so that data fetching and manipulation runs independently
+#so that data fetching and manipulation run independently
 thread = threading.Thread(target=load_flow)
 thread.start()
 
