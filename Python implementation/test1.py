@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 import numpy  as np
 import math
 import folium
-import ku_grid
+import ku_grid_model
 
 
-network = ku_grid.create_network()
+network = ku_grid_model.create_network()
 
 # path to save map
 MAP_PATH = r"G:\My Drive\D-VA\Main Project\Python implementation\ku_grid.html"

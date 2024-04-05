@@ -10,10 +10,10 @@ from folium.plugins import AntPath
 import time 
 import paho.mqtt.client as mqtt
 import json
-import ku_grid
+import ku_grid_model
 import threading
 
-network = ku_grid.create_network()
+network = ku_grid_model.create_network()
 
 # MQTT broker details
 broker_address = "mqtt.iammeter.com"  # MQTT broker address - iammeter broker in this case
@@ -122,22 +122,18 @@ def on_message(client, userdata, message):
     global grid_layer
 
     if message.topic == Topic[PHYSICS]:
-        print(f"got message from physics")
         physics_meter_total_power = total_power
         network.loads.loc['Load16', 'p_set'] = physics_meter_total_power/1e6
         network.loads.loc['Load16', 'q_set'] = (physics_meter_total_power/1e6)*tan_phi
     elif message.topic == Topic[BIOTECH]:
-        print(f"got message from biotech")
         biotech_meter_total_power = total_power
         network.loads.loc['Load19', 'p_set'] = biotech_meter_total_power/1e6
         network.loads.loc['Load19', 'q_set'] = (biotech_meter_total_power/1e6)*tan_phi
     elif message.topic == Topic[MANAGEMENT]:
-        print(f"got message from management")
         management_meter_total_power = total_power
         network.loads.loc['Load5', 'p_set'] = management_meter_total_power/1e6
         network.loads.loc['Load5', 'q_set'] = (management_meter_total_power/1e6)*tan_phi
     elif message.topic == Topic[CIVIL]:
-        print(f"got message from civil")
         civil_meter_total_power = total_power
         network.loads.loc['Load6', 'p_set'] = civil_meter_total_power/1e6
         network.loads.loc['Load6', 'q_set'] = (civil_meter_total_power/1e6)*tan_phi
