@@ -213,8 +213,14 @@ def load_flow():
                             color = line_color, weight  = line_weight,
                         tooltip= tooltip_text).add_to(grid_layer)
             
-            x1, y1 = network.buses.loc[bus0].x, network.buses.loc[bus0].y  #first point of the line
-            x2, y2 = network.buses.loc[bus1].x, network.buses.loc[bus1].y  #second point
+            if line_p > 0:
+                # if power is flowing from bus0 to bus1 direct arrows from bus0 to bus1
+                x1, y1 = network.buses.loc[bus0].x, network.buses.loc[bus0].y  #first point of the line
+                x2, y2 = network.buses.loc[bus1].x, network.buses.loc[bus1].y  #second point
+            else:
+                # if power is flowing from bus1 to bus0 direct arrows from bus1 to bus0
+                x1, y1 = network.buses.loc[bus1].x, network.buses.loc[bus1].y  #first point of the line
+                x2, y2 = network.buses.loc[bus0].x, network.buses.loc[bus0].y  #second point
             x3, y3 = (x1+x2)/2, (y1+y2)/2     # mid point
             m = (y2-y1)/(x2-x1)     #slope
             l = math.sqrt(pow(x2-x1, 2) + pow(y2-y1, 2))    #line length
