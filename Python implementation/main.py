@@ -12,17 +12,19 @@ import paho.mqtt.client as mqtt
 import json
 import ku_grid_model
 import threading
+import os
+from dotenv import load_dotenv
 
 network = ku_grid_model.create_network()
 
+load_dotenv()
 # MQTT broker details
-broker_address = "mqtt.iammeter.com"  # MQTT broker address - iammeter broker in this case
+broker_address = "mqtt.iammeter.com"  # MQTT broker address 
 broker_port = 1883  # Default MQTT port
-username = "karuna"
-password = "232794"
+username = os.getenv("METER_MQTT_USER")
+password = os.getenv("METER_MQTT_PASS")
 
 TOTAL_BLOCKS = 4
-
 PHYSICS = 0
 BIOTECH = 1
 MANAGEMENT = 2

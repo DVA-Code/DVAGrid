@@ -46,7 +46,7 @@ def create_network():
     network.add("Bus", "LVB36", v_nom=0.4, y=27.61805, x=85.53786)
     network.add("Bus", "LVB37", v_nom=0.4, y=27.61771, x=85.53714)
     network.add("Bus", "LVB38", v_nom=0.4, y=27.61776, x=85.53674)
-    network.add("Bus", "LVB39", v_nom=0.4, y=27.61743, x=85.5395)
+#     network.add("Bus", "LVB39", v_nom=0.4, y=27.61743, x=85.5395)
     network.add("Bus", "LVB40", v_nom=0.4, y=27.61751, x=85.53745)
     network.add("Bus", "LVB41", v_nom=0.4, y=27.61745, x=85.5372)
     network.add("Bus", "LVB42", v_nom=0.4, y=27.61785, x=85.53823)
@@ -60,7 +60,6 @@ def create_network():
     network.add("Bus", "LVB50", v_nom=0.4, y=27.61999, x=85.53902)
     network.add("Bus", "LVB51", v_nom=0.4, y=27.61991, x=85.53953)
     network.add("Bus", "LVB52", v_nom=0.4, y=27.61986, x=85.53779)
-
 
     # add an external network to the high voltage bus
     network.add("Generator", "External network", bus = "HVB", control = "Slack")
@@ -110,7 +109,7 @@ def create_network():
     network.add("Line", "Line35_36", bus0 = "LVB35", bus1 = "LVB36", length = 0.03, r = 0.082*0.03, x = 0.07*0.03)
     network.add("Line", "Line35_37", bus0 = "LVB35", bus1 = "LVB37", length = 0.05521, r = 0.082*0.05521, x = 0.07*0.05521)
     network.add("Line", "Line37_38", bus0 = "LVB37", bus1 = "LVB38", length = 0.03, r = 0.082*0.03, x = 0.07*0.03)
-    network.add("Line", "Line37_39", bus0 = "LVB37", bus1 = "LVB39", length = 0.141, r = 0.082*0.141, x = 0.07*0.141)
+#     network.add("Line", "Line37_39", bus0 = "LVB37", bus1 = "LVB39", length = 0.141, r = 0.082*0.141, x = 0.07*0.141)
     network.add("Line", "Line37_40", bus0 = "LVB37", bus1 = "LVB40", length = 0.03, r = 0.082*0.03, x = 0.07*0.03)
     network.add("Line", "Line40_41", bus0 = "LVB40", bus1 = "LVB41", length = 0.03, r = 0.082*0.03, x = 0.07*0.03)
     network.add("Line", "Line35_42", bus0 = "LVB35", bus1 = "LVB42", length = 0.05915, r = 0.082*0.05915, x = 0.07*0.05915)
@@ -123,6 +122,9 @@ def create_network():
     network.add("Line", "Line48_49", bus0 = "LVB48", bus1 = "LVB49", length = 0.03, r = 0.082*0.03, x = 0.07*0.03)
     network.add("Line", "Line48_50", bus0 = "LVB48", bus1 = "LVB50", length = 0.03, r = 0.082*0.03, x = 0.07*0.03)
     network.add("Line", "Line48_51", bus0 = "LVB48", bus1 = "LVB51", length = 0.03, r = 0.082*0.03, x = 0.07*0.03)
+
+#     network.add("Line", "Line48_51", bus0 = "LVB48", bus1 = "LVB51", length = 0.03, r = 0.082*0.03, x = 0.07*0.03)
+    
 
     # set the power factor of 0.95
     PF = 0.95
