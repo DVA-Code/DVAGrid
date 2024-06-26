@@ -182,6 +182,7 @@ def load_flow():
         for index, row in network.lines.iterrows():
             # get the name of the line
             line_name = index
+            # print(f"index= {index}\n type={type(index)}")
             # get active and reactive powers of the line
             line_p = network.lines_t.p0.loc['now', index ]
             line_q = network.lines_t.q0.loc['now', index ]    
@@ -194,7 +195,23 @@ def load_flow():
             # calculate the line percentage loading
             percentage_loading = (abs(network.lines_t.p0.loc['now', index ])/s_nom_assumed)*100
             line_color = ''
-            if percentage_loading <= 50:
+            dash_size = ''
+            show_arrow = True
+            show_animation = True
+
+            # uncomment to simulate a virtual power outage on line2_3
+            # if line_name=="Line2_3":
+            #     line_p = 0
+            #     line_q = 0
+                
+            if (line_p == 0) and (line_q==0):
+                # black color if no power flowing through the line
+                line_color = 'black' 
+                dash_size = '5, 10'
+                percentage_loading = 0
+                show_arrow = False
+                show_animation = False
+            elif (0 < percentage_loading <= 50):
                 # green color if line loading is less than 50%
                 line_color = 'green' 
             elif (50 < percentage_loading <= 100):
@@ -213,7 +230,8 @@ def load_flow():
             folium.PolyLine(locations=[(network.buses.loc[bus0].y, network.buses.loc[bus0].x), 
                                     (network.buses.loc[bus1].y, network.buses.loc[bus1].x)],
                             color = line_color, weight  = line_weight,
-                        tooltip= tooltip_text).add_to(grid_layer)
+                            dash_array = dash_size,
+                            tooltip= tooltip_text).add_to(grid_layer)
             
             if line_p > 0:
                 # if power is flowing from bus0 to bus1 direct arrows from bus0 to bus1
@@ -275,17 +293,19 @@ def load_flow():
                 x5=xprime-k2
                 y5=yprime+b2
 
-            # use triangles as arrowheads
-            folium.Polygon(locations=[(y4, x4), (y3, x3), (y5, x5)],
+            if show_arrow:
+                folium.Polygon(locations=[(y4, x4), (y3, x3), (y5, x5)],
                      color= line_color, weight=2.0,
-              fill=True, fill_color = line_color, fill_opacity=0.8).add_to(grid_layer)
-
-            # Use AntPath for animation
-            # coordinates - first latitude(y) then longitude(x)
-            AntPath([(y1, x1), (y2, x2)], 
-                    delay = 400, dash_array=(3,10), 
-                    color=line_color, pulse_color='#FFFFFF',
-                    weight=3, opacity=1.0).add_to(animation_layer)
+                     fill=True, fill_color = line_color, fill_opacity=0.8).add_to(grid_layer)
+              
+            
+            if show_animation:
+                # Use AntPath for animation
+                # coordinates - first latitude(y) then longitude(x)
+                AntPath([(y1, x1), (y2, x2)], 
+                        delay = 400, dash_array=(3,10), 
+                        color=line_color, pulse_color='#FFFFFF',
+                        weight=3, opacity=1.0).add_to(animation_layer)
     
         # add a line between HVB and LVB1 as PyPSA doesn't create a line between the buses if there is a transformer in between
         folium.PolyLine(locations=[(network.buses.loc['HVB'].y, network.buses.loc['HVB'].x), 
