@@ -62,6 +62,9 @@ grid_layer = folium.FeatureGroup(name='Grid Layer').add_to(map)
 
 # add a layer for animation
 animation_layer = folium.FeatureGroup(name='Animation', show = False).add_to(map)
+
+# add a layer for outage detection
+outage_layer = folium.FeatureGroup(name='Outage detection', show = False).add_to(map)
 folium.LayerControl().add_to(map)
 
 # get coordinates of all the buses in the network
