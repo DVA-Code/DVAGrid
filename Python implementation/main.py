@@ -62,6 +62,9 @@ grid_layer = folium.FeatureGroup(name='Grid Layer').add_to(map)
 
 # add a layer for animation
 animation_layer = folium.FeatureGroup(name='Animation', show = False).add_to(map)
+
+# add a layer to display faults
+fault_layer = folium.FeatureGroup(name='Fault Detection', show=False).add_to(map)
 folium.LayerControl().add_to(map)
 
 # get coordinates of all the buses in the network
@@ -198,11 +201,16 @@ def load_flow():
             dash_size = ''
             show_arrow = True
             show_animation = True
+            show_fault = False
 
             # uncomment to simulate a virtual power outage on line2_3
             # if line_name=="Line2_3":
             #     line_p = 0
             #     line_q = 0
+
+            # uncomment to simulate a virtual fault on line4_5
+            if line_name=="Line4_5":
+                percentage_loading = 160.0
                 
             if (line_p == 0) and (line_q==0):
                 # black color if no power flowing through the line
@@ -217,9 +225,13 @@ def load_flow():
             elif (50 < percentage_loading <= 100):
                 # violet if line loading is between 50 to 100%
                 line_color = 'orange' 
-            else:
-                # red if line loading is greater than 100%
+            elif (100 < percentage_loading <= 150):
+                # red if line loading is between 100 to 150&
                 line_color = 'red'
+            else:
+                # indicate fault if percentage loading exceeds 150%
+                line_color = 'red'
+                show_fault = True
 
             # set line weight relative to percentage loading
             line_weight = 2.0 + percentage_loading*4/100
@@ -306,6 +318,30 @@ def load_flow():
                         delay = 400, dash_array=(3,10), 
                         color=line_color, pulse_color='#FFFFFF',
                         weight=3, opacity=1.0).add_to(animation_layer)
+                
+            if show_fault:
+                # url of fault icon
+                flash_url = 'G:\\My Drive\\D-VA\\Main Project\\Python implementation\\images\\flash2.png'
+
+                # Coordinates for the flash icon
+                flash_y = (network.buses.loc[bus0].y + network.buses.loc[bus1].y)/2
+                flash_x = (network.buses.loc[bus0].x + network.buses.loc[bus1].x)/2
+                flash_coords = [flash_y, flash_x]
+
+                # Create a custom icon using the image URL
+                icon = folium.CustomIcon(
+                    flash_url,
+                    icon_size=(60, 60),  # Size of the icon
+                    icon_anchor=(30, 30),  # Position of the icon anchor relative to the icon center
+                    popup_anchor=(0, -20)  # Position of the popup relative to the icon
+                )
+
+                # Add a marker with the custom icon to the map
+                folium.Marker(
+                    location=flash_coords,
+                    icon=icon,
+                    popup=f'A fault exists in {line_name}'
+                ).add_to(fault_layer)
     
         # add a line between HVB and LVB1 as PyPSA doesn't create a line between the buses if there is a transformer in between
         folium.PolyLine(locations=[(network.buses.loc['HVB'].y, network.buses.loc['HVB'].x), 
