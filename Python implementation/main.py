@@ -209,7 +209,7 @@ def load_flow():
             #     line_q = 0
 
             # uncomment to simulate a virtual fault on line4_5
-            if line_name=="Line4_5":
+            if line_name=="Line4_7":
                 percentage_loading = 160.0
                 
             if (line_p == 0) and (line_q==0):
@@ -327,13 +327,16 @@ def load_flow():
                 flash_y = (network.buses.loc[bus0].y + network.buses.loc[bus1].y)/2
                 flash_x = (network.buses.loc[bus0].x + network.buses.loc[bus1].x)/2
                 flash_coords = [flash_y, flash_x]
+                m_flash = (network.buses.loc[bus1].y - network.buses.loc[bus0].y)/(network.buses.loc[bus1].x-network.buses.loc[bus0].x)
+                theta_flash = math.atan(m_flash)    #angle in radian
+                theta_flash = theta_flash * 180/math.pi     #radian to degrees
 
                 # Create a custom icon using the image URL
                 icon = folium.CustomIcon(
                     flash_url,
-                    icon_size=(60, 60),  # Size of the icon
-                    icon_anchor=(30, 30),  # Position of the icon anchor relative to the icon center
-                    popup_anchor=(0, -20)  # Position of the popup relative to the icon
+                    icon_size=(70, 70),  # Size of the icon
+                    icon_anchor=(35, 35),  # Position of the icon anchor relative to the icon center
+                    popup_anchor=(0, -20),  # Position of the popup relative to the icon
                 )
 
                 # Add a marker with the custom icon to the map
