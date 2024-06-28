@@ -63,6 +63,9 @@ grid_layer = folium.FeatureGroup(name='Grid Layer').add_to(map)
 # add a layer for animation
 animation_layer = folium.FeatureGroup(name='Animation', show = False).add_to(map)
 
+# add a layer to display faults
+fault_layer = folium.FeatureGroup(name='Fault Detection', show=False).add_to(map)
+
 # add a layer for outage detection
 outage_layer = folium.FeatureGroup(name='Outage detection', show = False).add_to(map)
 folium.LayerControl().add_to(map)
@@ -156,7 +159,7 @@ def load_flow():
         ####################################################################
         ######################### Network Plotting #########################
         ####################################################################
-    
+
         # add circles to the locations of buses in the map
         for i in range(len(bus_coords)):
             # get the bus name
@@ -185,6 +188,7 @@ def load_flow():
         for index, row in network.lines.iterrows():
             # get the name of the line
             line_name = index
+            # print(f"index= {index}\n type={type(index)}")
             # get active and reactive powers of the line
             line_p = network.lines_t.p0.loc['now', index ]
             line_q = network.lines_t.q0.loc['now', index ]    
@@ -197,15 +201,40 @@ def load_flow():
             # calculate the line percentage loading
             percentage_loading = (abs(network.lines_t.p0.loc['now', index ])/s_nom_assumed)*100
             line_color = ''
-            if percentage_loading <= 50:
+            dash_size = ''
+            show_arrow = True
+            show_animation = True
+            show_fault = False
+
+            # uncomment to simulate a virtual power outage on line2_3
+            # if line_name=="Line2_3":
+            #     line_p = 0
+            #     line_q = 0
+
+            # uncomment to simulate a virtual fault on line4_5
+            if line_name=="Line4_7":
+                percentage_loading = 160.0
+                
+            if (line_p == 0) and (line_q==0):
+                # black color if no power flowing through the line
+                line_color = 'black' 
+                dash_size = '5, 10'
+                percentage_loading = 0
+                show_arrow = False
+                show_animation = False
+            elif (0 < percentage_loading <= 50):
                 # green color if line loading is less than 50%
                 line_color = 'green' 
             elif (50 < percentage_loading <= 100):
                 # violet if line loading is between 50 to 100%
                 line_color = 'orange' 
-            else:
-                # red if line loading is greater than 100%
+            elif (100 < percentage_loading <= 150):
+                # red if line loading is between 100 to 150&
                 line_color = 'red'
+            else:
+                # indicate fault if percentage loading exceeds 150%
+                line_color = 'red'
+                show_fault = True
 
             # set line weight relative to percentage loading
             line_weight = 2.0 + percentage_loading*4/100
@@ -216,7 +245,8 @@ def load_flow():
             folium.PolyLine(locations=[(network.buses.loc[bus0].y, network.buses.loc[bus0].x), 
                                     (network.buses.loc[bus1].y, network.buses.loc[bus1].x)],
                             color = line_color, weight  = line_weight,
-                        tooltip= tooltip_text).add_to(grid_layer)
+                            dash_array = dash_size,
+                            tooltip= tooltip_text).add_to(grid_layer)
             
             if line_p > 0:
                 # if power is flowing from bus0 to bus1 direct arrows from bus0 to bus1
@@ -278,17 +308,46 @@ def load_flow():
                 x5=xprime-k2
                 y5=yprime+b2
 
-            # use triangles as arrowheads
-            folium.Polygon(locations=[(y4, x4), (y3, x3), (y5, x5)],
+            if show_arrow:
+                folium.Polygon(locations=[(y4, x4), (y3, x3), (y5, x5)],
                      color= line_color, weight=2.0,
-              fill=True, fill_color = line_color, fill_opacity=0.8).add_to(grid_layer)
+                     fill=True, fill_color = line_color, fill_opacity=0.8).add_to(grid_layer)
+              
+            
+            if show_animation:
+                # Use AntPath for animation
+                # coordinates - first latitude(y) then longitude(x)
+                AntPath([(y1, x1), (y2, x2)], 
+                        delay = 400, dash_array=(3,10), 
+                        color=line_color, pulse_color='#FFFFFF',
+                        weight=3, opacity=1.0).add_to(animation_layer)
+                
+            if show_fault:
+                # url of fault icon
+                flash_url = 'G:\\My Drive\\D-VA\\Main Project\\Python implementation\\images\\flash2.png'
 
-            # Use AntPath for animation
-            # coordinates - first latitude(y) then longitude(x)
-            AntPath([(y1, x1), (y2, x2)], 
-                    delay = 400, dash_array=(3,10), 
-                    color=line_color, pulse_color='#FFFFFF',
-                    weight=3, opacity=1.0).add_to(animation_layer)
+                # Coordinates for the flash icon
+                flash_y = (network.buses.loc[bus0].y + network.buses.loc[bus1].y)/2
+                flash_x = (network.buses.loc[bus0].x + network.buses.loc[bus1].x)/2
+                flash_coords = [flash_y, flash_x]
+                m_flash = (network.buses.loc[bus1].y - network.buses.loc[bus0].y)/(network.buses.loc[bus1].x-network.buses.loc[bus0].x)
+                theta_flash = math.atan(m_flash)    #angle in radian
+                theta_flash = theta_flash * 180/math.pi     #radian to degrees
+
+                # Create a custom icon using the image URL
+                icon = folium.CustomIcon(
+                    flash_url,
+                    icon_size=(70, 70),  # Size of the icon
+                    icon_anchor=(35, 35),  # Position of the icon anchor relative to the icon center
+                    popup_anchor=(0, -20),  # Position of the popup relative to the icon
+                )
+
+                # Add a marker with the custom icon to the map
+                folium.Marker(
+                    location=flash_coords,
+                    icon=icon,
+                    popup=f'A fault exists in {line_name}'
+                ).add_to(fault_layer)
     
         # add a line between HVB and LVB1 as PyPSA doesn't create a line between the buses if there is a transformer in between
         folium.PolyLine(locations=[(network.buses.loc['HVB'].y, network.buses.loc['HVB'].x), 
