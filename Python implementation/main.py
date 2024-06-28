@@ -156,7 +156,7 @@ def load_flow():
         ####################################################################
         ######################### Network Plotting #########################
         ####################################################################
-    
+
         # add circles to the locations of buses in the map
         for i in range(len(bus_coords)):
             # get the bus name

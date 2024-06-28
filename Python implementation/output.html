@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_cc009c1e001819ce78655fc834c827b9 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+    <div style="position: fixed; top: 500px; left: 20px; z-index: 1000; background-color: white; padding: 10px; border: 1px solid #ccc;">
+        <style>
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            th, td {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+
+            th {
+                background-color: #f2f2f2;
+            }
+        </style>
+        <table>
+            <tr>
+                <th colspan="2">Critical Buses</th>
+            </tr>
+            <tr>
+                <th>Buses</th>
+                <th>|V| pu</th>
+            </tr>
+            <tr>
+                <td>Bus1</td>
+                <td>0.95</td>
+            </tr>
+            <tr>
+                <td>Bus1</td>
+                <td>0.95</td>
+            </tr>
+            <tr>
+                <td>Bus1</td>
+                <td>0.95</td>
+            </tr>
+        </table>
+    </div>
+    
+    
+    <div style="position: fixed; top: 700px; left: 20px; z-index: 1000; background-color: white; padding: 10px; border: 1px solid #ccc;">
+        <style>
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            th, td {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+
+            th {
+                background-color: #f2f2f2;
+            }
+        </style>
+        <table>
+            <tr>
+                <th colspan="2">Critical Lines</th>
+            </tr>
+            <tr>
+                <th>Lines</th>
+                <th>% Loading</th>
+            </tr>
+            <tr>
+                <td>Line1_2</td>
+                <td>50</td>
+            </tr>
+            <tr>
+                <td>Line1_2</td>
+                <td>50</td>
+            </tr>
+            <tr>
+                <td>Line1_2</td>
+                <td>50</td>
+            </tr>
+        </table>
+    </div>
+    
+    
+            <div class="folium-map" id="map_cc009c1e001819ce78655fc834c827b9" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_cc009c1e001819ce78655fc834c827b9 = L.map(
+                "map_cc009c1e001819ce78655fc834c827b9",
+                {
+                    center: [27.620688626572516, 85.5400761719249],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 7,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_810ccfc532d6f5a00bae089c44baaece = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            );
+        
+    
+            tile_layer_810ccfc532d6f5a00bae089c44baaece.addTo(map_cc009c1e001819ce78655fc834c827b9);
+        
+</script>
+</html>
