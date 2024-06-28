@@ -1,3 +1,6 @@
+.env
+test1.py
+test2.py
+test3.py
 venv
 __pycache__
-.env
