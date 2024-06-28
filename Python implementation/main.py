@@ -14,6 +14,7 @@ import ku_grid_model
 import threading
 import os
 from dotenv import load_dotenv
+import html_contents
 
 network = ku_grid_model.create_network()
 
@@ -65,9 +66,6 @@ animation_layer = folium.FeatureGroup(name='Animation', show = False).add_to(map
 
 # add a layer to display faults
 fault_layer = folium.FeatureGroup(name='Fault Detection', show=False).add_to(map)
-
-# add a layer for outage detection
-outage_layer = folium.FeatureGroup(name='Outage detection', show = False).add_to(map)
 folium.LayerControl().add_to(map)
 
 # get coordinates of all the buses in the network
@@ -161,11 +159,14 @@ def load_flow():
         ####################################################################
 
         # add circles to the locations of buses in the map
+        bus_v_mags = {}
         for i in range(len(bus_coords)):
             # get the bus name
             bus_name = network.buses.index.to_list()[i]
             # get per unit voltage magnitude the bus
             v_mag_pu = network.buses_t.v_mag_pu.iloc[0, i]
+            # get the difference from the per unit value
+            V_mag_diff = abs(v_mag_pu-1.0)
             # get voltage angle of the bus (in radian by default) and convert it to degree
             v_ang_rad = network.buses_t.v_ang.iloc[0, i]
             v_ang_deg = (180/math.pi)*v_ang_rad 
@@ -183,8 +184,10 @@ def load_flow():
                         stroke=False,
                         fill=True, fill_color= bus_color, fill_opacity=1.0,
                         popup=folium.Popup(popup_text, max_width=100)).add_to(grid_layer)
+            bus_v_mags[f'{bus_name}'] = [v_mag_pu, V_mag_diff]
     
         # add lines
+        line_loading = {}
         for index, row in network.lines.iterrows():
             # get the name of the line
             line_name = index
@@ -348,7 +351,17 @@ def load_flow():
                     icon=icon,
                     popup=f'A fault exists in {line_name}'
                 ).add_to(fault_layer)
-    
+            line_loading[f"{line_name}"] = percentage_loading
+
+        bus_v_mags = dict(sorted(bus_v_mags.items(), key=lambda item: item[1][1], reverse = True))
+        for key in bus_v_mags:
+            bus_v_mags[key] = bus_v_mags[key][0]
+        line_loading = dict(sorted(line_loading.items(), key=lambda item: item[1], reverse = True))
+        bus_html = html_contents.get_html(500, "Critical Buses", "Bus", "|V| pu", **bus_v_mags)
+        line_html = html_contents.get_html(700, "Critical Lines", "Line", "% Loading", **line_loading)
+        map.get_root().html.add_child(folium.Element(bus_html))
+        map.get_root().html.add_child(folium.Element(line_html))
+
         # add a line between HVB and LVB1 as PyPSA doesn't create a line between the buses if there is a transformer in between
         folium.PolyLine(locations=[(network.buses.loc['HVB'].y, network.buses.loc['HVB'].x), 
                                     (network.buses.loc['LVB1'].y, network.buses.loc['LVB1'].x)],
