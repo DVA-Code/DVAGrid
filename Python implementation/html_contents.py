@@ -1,6 +1,6 @@
-def get_html(top_margin, table_name, col1_title, col2_title, **rows):
+def get_table_html(top_margin: int, table_name: str, col1_title: str, col2_title: str, **rows) -> str:
     rows = list(rows.items())
-    element_html = f"""
+    table_html = f"""
     <div style="position: fixed; top: {top_margin}px; left: 20px; z-index: 1000; background-color: white; padding: 10px; border: 1px solid #ccc;">
         <style>
             table {{
@@ -41,4 +41,33 @@ def get_html(top_margin, table_name, col1_title, col2_title, **rows):
         </table>
     </div>
     """
-    return element_html
+    return table_html
+
+
+def get_legend_html(element_name: str) -> str:
+    bus_legend_html = """
+        <div style="position: fixed; 
+        bottom: 200px; right: 50px; width: 150px; height: 180px; 
+        border:0px solid grey; z-index:9999; font-size:14px;
+        background-color: white;
+        ">&nbsp; <span style="font-weight: bold; font-size: 20px">Bus Legends </span></b><br>
+        &nbsp; <font color="red" style="font-size: 30px;">●</font><span style="font-weight:bold;"> |V| < 0.95</span>   <br>
+        &nbsp; <font color="green" style="font-size: 30px;">●</font><span style="font-weight:bold;"> 0.95 ≤ |V| ≤ 1.05</span><br>
+        &nbsp; <font color="yellow" style="font-size: 30px;">●</font><span style="font-weight:bold;"> 1.05 < |V|</span><br>
+        </div>
+        """
+    line_legend_html = """
+        <div style="position: fixed; 
+        bottom: 20px; right: 20px; width: 200px; height: 180px; 
+        border:0px solid grey; z-index:9999; font-size:14px;
+        background-color: white;
+        ">&nbsp; <span style="font-weight: bold; font-size: 20px">Line Legends </span></b><br>
+        &nbsp; <font color="green" style="font-size: 30px;">—</font><span style="font-weight:bold;"> Loading ≤ 50%</span><br>
+        &nbsp; <font color="orange" style="font-size: 30px;">—</font><span style="font-weight:bold;"> 50% ≤ Loading < 100%</span><br>
+        &nbsp; <font color="red" style="font-size: 30px;">—</font><span style="font-weight:bold;"> Loading > 100%</span><br>
+        </div>
+        """
+    if element_name == "bus":
+        return bus_legend_html
+    elif element_name == "line":
+        return line_legend_html

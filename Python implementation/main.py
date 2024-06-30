@@ -75,30 +75,11 @@ for index, row in network.buses.iterrows():
     bus_coords.append([row['y'], row['x']])
 
 # Define a legend for the buses
-bus_legend_html = """
-        <div style="position: fixed; 
-        top: 300px; right: 50px; width: 150px; height: 180px; 
-        border:0px solid grey; z-index:9999; font-size:14px;
-        background-color: white;
-        ">&nbsp; <span style="font-weight: bold; font-size: 20px">Bus Legends </span></b><br>
-        &nbsp; <font color="red" style="font-size: 30px;">●</font><span style="font-weight:bold;"> |V| < 0.95</span>   <br>
-        &nbsp; <font color="green" style="font-size: 30px;">●</font><span style="font-weight:bold;"> 0.95 ≤ |V| ≤ 1.05</span><br>
-        &nbsp; <font color="yellow" style="font-size: 30px;">●</font><span style="font-weight:bold;"> 1.05 < |V|</span><br>
-        </div>
-        """
+bus_legend_html = html_contents.get_legend_html(element_name="bus")
 
 # Define a legend for the lines
-line_legend_html = """
-        <div style="position: fixed; 
-        bottom: 20px; right: 20px; width: 200px; height: 180px; 
-        border:0px solid grey; z-index:9999; font-size:14px;
-        background-color: white;
-        ">&nbsp; <span style="font-weight: bold; font-size: 20px">Line Legends </span></b><br>
-        &nbsp; <font color="green" style="font-size: 30px;">—</font><span style="font-weight:bold;"> Loading ≤ 50%</span><br>
-        &nbsp; <font color="orange" style="font-size: 30px;">—</font><span style="font-weight:bold;"> 50% ≤ Loading < 100%</span><br>
-        &nbsp; <font color="red" style="font-size: 30px;">—</font><span style="font-weight:bold;"> Loading > 100%</span><br>
-        </div>
-        """
+line_legend_html = html_contents.get_legend_html(element_name="line")
+
 # Add bus legend to the map
 map.get_root().html.add_child(folium.Element(bus_legend_html))
 
@@ -321,7 +302,7 @@ def load_flow():
                 # Use AntPath for animation
                 # coordinates - first latitude(y) then longitude(x)
                 AntPath([(y1, x1), (y2, x2)], 
-                        delay = 400, dash_array=(3,10), 
+                        delay = 1200, dash_array=(3,10), 
                         color=line_color, pulse_color='#FFFFFF',
                         weight=3, opacity=1.0).add_to(animation_layer)
                 
@@ -357,8 +338,8 @@ def load_flow():
         for key in bus_v_mags:
             bus_v_mags[key] = bus_v_mags[key][0]
         line_loading = dict(sorted(line_loading.items(), key=lambda item: item[1], reverse = True))
-        bus_html = html_contents.get_html(500, "Critical Buses", "Bus", "|V| pu", **bus_v_mags)
-        line_html = html_contents.get_html(700, "Critical Lines", "Line", "% Loading", **line_loading)
+        bus_html = html_contents.get_table_html(500, "Critical Buses", "Bus", "|V| pu", **bus_v_mags)
+        line_html = html_contents.get_table_html(700, "Critical Lines", "Line", "% Loading", **line_loading)
         map.get_root().html.add_child(folium.Element(bus_html))
         map.get_root().html.add_child(folium.Element(line_html))
 
