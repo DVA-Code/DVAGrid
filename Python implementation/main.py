@@ -25,20 +25,23 @@ broker_port = 1883  # Default MQTT port
 username = os.getenv("METER_MQTT_USER")
 password = os.getenv("METER_MQTT_PASS")
 
-TOTAL_BLOCKS = 4
+TOTAL_BLOCKS = 5
 PHYSICS = 0
 BIOTECH = 1
 MANAGEMENT = 2
 CIVIL = 3
+ELECTRICAL = 4
+TRANSFORMER = 5
+
 
 # Topics to subscribe to, for each meter
 Topic = {PHYSICS: "device/CD0FF6AB/realtime",
           BIOTECH: "device/57DB095D/realtime",
           MANAGEMENT: "device/8FA834AC/realtime",
-          CIVIL: "device/DAD94549/realtime"}
+          CIVIL: "device/DAD94549/realtime",
+          ELECTRICAL: "device/C249361B/realtime",
+          TRANSFORMER: "device/F51C3384/realtime"}
 
-# set a counter to count the number of messages received
-counter = 0
 
 # set the power factor of 0.95
 PF = 0.95
@@ -49,13 +52,15 @@ physics_meter_total_power = 1000
 biotech_meter_total_power = 1000
 management_meter_total_power = 1000
 civil_meter_total_power = 1000
+electrical_meter_total_power = 1000
+transformer_meter_total_power = 1000
 
 # path to save map
 MAP_PATH = r"G:\My Drive\D-VA\Main Project\Python implementation\ku_grid.html"
 
 # create a map object
 map = folium.Map(location=(27.619013147338894, 85.5387356168638), 
-                    zoom_start=17, max_zoom=30)
+                    zoom_start=18, max_zoom=30)
 
 # add a layer to plot the distribution grid
 grid_layer = folium.FeatureGroup(name='Grid Layer').add_to(map)
@@ -104,6 +109,8 @@ def on_message(client, userdata, message):
     global biotech_meter_total_power
     global civil_meter_total_power
     global management_meter_total_power
+    global electrical_meter_total_power
+    global transformer_meter_total_power
 
     global map
     global grid_layer
@@ -124,6 +131,10 @@ def on_message(client, userdata, message):
         civil_meter_total_power = total_power
         network.loads.loc['Load6', 'p_set'] = civil_meter_total_power/1e6
         network.loads.loc['Load6', 'q_set'] = (civil_meter_total_power/1e6)*tan_phi
+    elif message.topic == Topic[ELECTRICAL]:
+        electrical_meter_total_power = total_power
+        network.loads.loc['Load49', 'p_set'] = electrical_meter_total_power/1e6
+        network.loads.loc['Load49', 'q_set'] = (electrical_meter_total_power/1e6)*tan_phi
  
 
 def load_flow():
@@ -131,6 +142,9 @@ def load_flow():
     global biotech_meter_total_power
     global civil_meter_total_power
     global management_meter_total_power
+    global electrical_meter_total_power
+    global transformer_meter_total_power
+
     while True:
         # perform newton Raphson Load Flow
         network.pf()
@@ -338,8 +352,8 @@ def load_flow():
         for key in bus_v_mags:
             bus_v_mags[key] = bus_v_mags[key][0]
         line_loading = dict(sorted(line_loading.items(), key=lambda item: item[1], reverse = True))
-        bus_html = html_contents.get_table_html(500, "Critical Buses", "Bus", "|V| pu", **bus_v_mags)
-        line_html = html_contents.get_table_html(700, "Critical Lines", "Line", "% Loading", **line_loading)
+        bus_html = html_contents.get_table_html(300, "Critical Buses", "Bus", "|V| pu", **bus_v_mags)
+        line_html = html_contents.get_table_html(500, "Critical Lines", "Line", "% Loading", **line_loading)
         map.get_root().html.add_child(folium.Element(bus_html))
         map.get_root().html.add_child(folium.Element(line_html))
 
@@ -385,6 +399,8 @@ client.subscribe(Topic[PHYSICS])
 client.subscribe(Topic[BIOTECH])
 client.subscribe(Topic[MANAGEMENT])
 client.subscribe(Topic[CIVIL])
+client.subscribe(Topic[ELECTRICAL])
+client.subscribe(Topic[TRANSFORMER])
 
 # Loop to maintain MQTT connection and process incoming messages
 client.loop_forever()
