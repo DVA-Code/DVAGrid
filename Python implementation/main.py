@@ -99,10 +99,10 @@ def on_message(client, userdata, message):
     payload_dict = json.loads(Payload_str)
 
     # get the active powers of all three phases
-    pa = int(payload_dict['Datas'][0][2])
-    pb = int(payload_dict['Datas'][1][2])
-    pc = int(payload_dict['Datas'][2][2])
-    total_power = pa+pb+pc
+    pa = float(payload_dict['Datas'][0][2])
+    pb = float(payload_dict['Datas'][1][2])
+    pc = float(payload_dict['Datas'][2][2])
+    total_power = int(pa+pb+pc)
 
     # store the total power to the variables of corresponding blocks
     global physics_meter_total_power
@@ -117,24 +117,81 @@ def on_message(client, userdata, message):
 
     if message.topic == Topic[PHYSICS]:
         physics_meter_total_power = total_power
+        print(f"got message from physics, power = {total_power}")
         network.loads.loc['Load16', 'p_set'] = physics_meter_total_power/1e6
         network.loads.loc['Load16', 'q_set'] = (physics_meter_total_power/1e6)*tan_phi
     elif message.topic == Topic[BIOTECH]:
         biotech_meter_total_power = total_power
+        print(f"got message from biotech, power = {total_power}")
         network.loads.loc['Load19', 'p_set'] = biotech_meter_total_power/1e6
         network.loads.loc['Load19', 'q_set'] = (biotech_meter_total_power/1e6)*tan_phi
     elif message.topic == Topic[MANAGEMENT]:
         management_meter_total_power = total_power
+        print(f"got message from management, power = {total_power}")
         network.loads.loc['Load5', 'p_set'] = management_meter_total_power/1e6
         network.loads.loc['Load5', 'q_set'] = (management_meter_total_power/1e6)*tan_phi
     elif message.topic == Topic[CIVIL]:
         civil_meter_total_power = total_power
+        print(f"got message from civil, power = {total_power}")
         network.loads.loc['Load6', 'p_set'] = civil_meter_total_power/1e6
         network.loads.loc['Load6', 'q_set'] = (civil_meter_total_power/1e6)*tan_phi
     elif message.topic == Topic[ELECTRICAL]:
         electrical_meter_total_power = total_power
+        print(f"got message from electrical, power = {total_power}")
         network.loads.loc['Load49', 'p_set'] = electrical_meter_total_power/1e6
         network.loads.loc['Load49', 'q_set'] = (electrical_meter_total_power/1e6)*tan_phi
+    elif message.topic == Topic[TRANSFORMER]:
+        transformer_meter_total_power = total_power
+        print(f"got message from transformer, power = {total_power}")
+        metered_total_power = physics_meter_total_power+biotech_meter_total_power+management_meter_total_power+civil_meter_total_power+electrical_meter_total_power
+        unmetered_total_power = transformer_meter_total_power - metered_total_power
+
+        # update the active and reactive powers of unmetered loads
+        # in proportion to their circuit breaker rating
+        network.loads.loc['Load17', 'p_set'] = (unmetered_total_power*0.010548)/1e6
+        network.loads.loc['Load17', 'q_set'] = ((unmetered_total_power*0.010548)/1e6)*tan_phi
+        network.loads.loc['Load8', 'p_set'] = (unmetered_total_power*0.042194)/1e6
+        network.loads.loc['Load8', 'q_set'] = ((unmetered_total_power*0.042194)/1e6)*tan_phi
+        network.loads.loc['Load30', 'p_set'] = (unmetered_total_power*0.042194)/1e6
+        network.loads.loc['Load30', 'q_set'] = ((unmetered_total_power*0.042194)/1e6)*tan_phi
+        network.loads.loc['Load38', 'p_set'] = (unmetered_total_power*0.0843882)/1e6
+        network.loads.loc['Load38', 'q_set'] = ((unmetered_total_power*0.0843882)/1e6)*tan_phi
+        network.loads.loc['Load13', 'p_set'] = (unmetered_total_power*0.0527426)/1e6
+        network.loads.loc['Load13', 'q_set'] = ((unmetered_total_power*0.0527426)/1e6)*tan_phi
+        network.loads.loc['Load23', 'p_set'] = (unmetered_total_power*0.042194)/1e6
+        network.loads.loc['Load23', 'q_set'] = ((unmetered_total_power*0.042194)/1e6)*tan_phi
+        network.loads.loc['Load41', 'p_set'] = (unmetered_total_power*0.0527426)/1e6
+        network.loads.loc['Load41', 'q_set'] = ((unmetered_total_power*0.0527426)/1e6)*tan_phi
+        network.loads.loc['Load50', 'p_set'] = (unmetered_total_power*0.042194)/1e6
+        network.loads.loc['Load50', 'q_set'] = ((unmetered_total_power*0.042194)/1e6)*tan_phi
+        network.loads.loc['Load22', 'p_set'] = (unmetered_total_power*0.084388)/1e6
+        network.loads.loc['Load22', 'q_set'] = ((unmetered_total_power*0.084388)/1e6)*tan_phi
+        network.loads.loc['Load34', 'p_set'] = (unmetered_total_power*0.0527426)/1e6
+        network.loads.loc['Load34', 'q_set'] = ((unmetered_total_power*0.0527426)/1e6)*tan_phi
+        network.loads.loc['Load36', 'p_set'] = (unmetered_total_power*0.084388)/1e6
+        network.loads.loc['Load36', 'q_set'] = ((unmetered_total_power*0.084388)/1e6)*tan_phi
+        network.loads.loc['Load40', 'p_set'] = (unmetered_total_power*0.021097)/1e6
+        network.loads.loc['Load40', 'q_set'] = ((unmetered_total_power*0.021097)/1e6)*tan_phi
+        network.loads.loc['Load10', 'p_set'] = (unmetered_total_power*0.021097)/1e6
+        network.loads.loc['Load10', 'q_set'] = ((unmetered_total_power*0.021097)/1e6)*tan_phi
+        network.loads.loc['Load25', 'p_set'] = (unmetered_total_power*0.010548)/1e6
+        network.loads.loc['Load25', 'q_set'] = ((unmetered_total_power*0.010548)/1e6)*tan_phi
+        network.loads.loc['Load3', 'p_set'] = (unmetered_total_power*0.021097)/1e6
+        network.loads.loc['Load3', 'q_set'] = ((unmetered_total_power*0.021097)/1e6)*tan_phi
+        network.loads.loc['Load45', 'p_set'] = (unmetered_total_power*0.0527426)/1e6
+        network.loads.loc['Load45', 'q_set'] = ((unmetered_total_power*0.0527426)/1e6)*tan_phi
+        network.loads.loc['Load32', 'p_set'] = (unmetered_total_power*0.021097)/1e6
+        network.loads.loc['Load32', 'q_set'] = ((unmetered_total_power*0.021097)/1e6)*tan_phi
+        network.loads.loc['Load52', 'p_set'] = (unmetered_total_power*0.021097)/1e6
+        network.loads.loc['Load52', 'q_set'] = ((unmetered_total_power*0.021097)/1e6)*tan_phi
+        network.loads.loc['Load43', 'p_set'] = (unmetered_total_power*0.021097)/1e6
+        network.loads.loc['Load43', 'q_set'] = ((unmetered_total_power*0.021097)/1e6)*tan_phi
+        network.loads.loc['Load28', 'p_set'] = (unmetered_total_power*0.042194)/1e6
+        network.loads.loc['Load28', 'q_set'] = ((unmetered_total_power*0.042194)/1e6)*tan_phi
+        network.loads.loc['Load27', 'p_set'] = (unmetered_total_power*0.063291)/1e6
+        network.loads.loc['Load27', 'q_set'] = ((unmetered_total_power*0.063291)/1e6)*tan_phi
+        network.loads.loc['Load51', 'p_set'] = (unmetered_total_power*0.063291)/1e6
+        network.loads.loc['Load51', 'q_set'] = ((unmetered_total_power*0.063291)/1e6)*tan_phi
  
 
 def load_flow():
@@ -197,7 +254,7 @@ def load_flow():
             # assume nominal line apparent capacity of 0.4 MVA
             s_nom_assumed = 0.069   #assumed nominal capacity of the line (230*300/1000000 MVA)
             # calculate the line percentage loading
-            percentage_loading = (abs(network.lines_t.p0.loc['now', index ])/s_nom_assumed)*100
+            percentage_loading = (abs(network.lines_t.p0.loc['now', index ])/(s_nom_assumed))*100
             line_color = ''
             dash_size = ''
             show_arrow = True
@@ -210,8 +267,8 @@ def load_flow():
             #     line_q = 0
 
             # uncomment to simulate a virtual fault on line4_5
-            if line_name=="Line4_7":
-                percentage_loading = 160.0
+            # if line_name=="Line4_7":
+            #     percentage_loading = 160.0
                 
             if (line_p == 0) and (line_q==0):
                 # black color if no power flowing through the line

@@ -1,6 +1,4 @@
 .env
-test1.py
-test2.py
-test3.py
+new.py
 venv
 __pycache__
