@@ -251,10 +251,10 @@ def load_flow():
             bus0 = row['bus0']
             bus1 = row['bus1']
             # set line colors based on the line loading
-            # assume nominal line apparent capacity of 0.4 MVA
-            s_nom_assumed = 0.069   #assumed nominal capacity of the line (230*300/1000000 MVA)
+            #assumed nominal capacity of the line (sqrt(3)*400*300/1000000 MVA)
+            s_nom_assumed = 0.207846   
             # calculate the line percentage loading
-            percentage_loading = (abs(network.lines_t.p0.loc['now', index ])/(s_nom_assumed))*100
+            percentage_loading = (math.sqrt(line_p**2 + line_q**2)/(s_nom_assumed))*100
             line_color = ''
             dash_size = ''
             show_arrow = True
