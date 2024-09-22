@@ -15,7 +15,7 @@ import threading
 import os
 from dotenv import load_dotenv
 import html_contents
-
+import buses_and_lines
 network = ku_grid_model.create_network()
 
 load_dotenv()
@@ -215,6 +215,7 @@ def load_flow():
         for i in range(len(bus_coords)):
             # get the bus name
             bus_name = network.buses.index.to_list()[i]
+            bus_name = buses_and_lines.get_bus_names(bus_name)
             # get per unit voltage magnitude the bus
             v_mag_pu = network.buses_t.v_mag_pu.iloc[0, i]
             # get the difference from the per unit value
@@ -294,7 +295,7 @@ def load_flow():
             # set line weight relative to percentage loading
             line_weight = 2.0 + percentage_loading*4/100
             # tooltip text for the line
-            tooltip_text = f'<span style="font-weight: bold; padding-left: 0px">{line_name}</span><br>P = {line_p: .3f} MW<br>Q = {line_q:.3f} MVAr<br>loading = {percentage_loading: .3f}%'
+            tooltip_text = f'<span style="font-weight: bold; padding-left: 0px">{line_name}</span><br>P = {line_p*1000: .3f} kW<br>Q = {line_q*1000:.3f} kVAr<br>loading = {percentage_loading: .3f}%'
             # finally, add the line
             # latitude first then longitude
             folium.PolyLine(locations=[(network.buses.loc[bus0].y, network.buses.loc[bus0].x), 
