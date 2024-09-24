@@ -263,7 +263,6 @@ def load_flow():
             line_R = buses_and_lines(line_name)     #line resistance
             line_loss = (line_I**2)*line_R      # power loss per line
             line_loss_3_phase = 3*line_loss     # total 3 phase power loss
-            
             line_color = ''
             dash_size = ''
             show_arrow = True
