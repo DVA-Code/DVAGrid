@@ -197,7 +197,7 @@ def on_message(client, userdata, message):
 # counter to count number of minutes
 minute_counter=0
 peak_power = 65000
-peak_timestamp = datetime.datetime.now()
+# peak_timestamp = datetime.datetime.now()
 system_total_power = 0
 
 def load_flow():
@@ -207,7 +207,11 @@ def load_flow():
     global management_meter_total_power
     global electrical_meter_total_power
     global transformer_meter_total_power
-    timestamp = datetime.datetime.now()
+
+    global peak_power
+    global system_total_power
+    global minute_counter
+    # timestamp = datetime.datetime.now()
 
     while True:
         # perform newton Raphson Load Flow
@@ -442,12 +446,21 @@ def load_flow():
         time.sleep(60)
         system_total_power = system_total_power+transformer_meter_total_power/1000
         if transformer_meter_total_power > peak_power:
-            peak_power = transformer_meter_total_power/1000
+            print(f"peak power changed from {peak_power/1000} kW to {transformer_meter_total_power/1000} kW")
+            peak_power = transformer_meter_total_power
             peak_timestamp = datetime.datetime.now()
         minute_counter = minute_counter+1
-        if minute_counter==(60*24):
+        if minute_counter==3:
             minute_counter=0
-            daily_average_power = system_total_power/(60*24)
+            daily_average_power = system_total_power/(3)
+            daily_peak_power = peak_power
+            # reset the system total power
+            system_total_power = 0
+            # reset the peak power to 65 kW
+            peak_power = 65000
+            print(f"daily average power = {daily_average_power:.3f} kW")
+            print(f"daily_peak_power = {daily_peak_power/1000} kW")
+            print(f"daily peak timestamp = {peak_timestamp.strftime("%Y-%m-%d %H:%M:%S")}")
             
 
 
