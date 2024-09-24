@@ -65,10 +65,10 @@ def create_network():
     network.add("Generator", "External network", bus = "HVB", control = "Slack")
 
     # add a transformer between HVB and LVB1
-    # network.add("Transformer", "Transformer", bus0 = "HVB", bus1 = "LVB1", model = "t", x = 0.5, r = 0.5,
-    #         s_nom = 0.25*1.25)
     network.add("Transformer", "Transformer", bus0 = "HVB", bus1 = "LVB1", model = "t", x = 0.5, r = 0.5,
-            s_nom = 99999999)
+            s_nom = 250000000*1.25)
+    # network.add("Transformer", "Transformer", bus0 = "HVB", bus1 = "LVB1", model = "t", x = 0.5, r = 0.5,
+    #         s_nom = 99999999)
 
     # add the lines between the low voltage buses
     network.add("Line", "Line1_2", bus0 = "LVB1", bus1 = "LVB2", length = 0.039, r = 0.082*0.039, x = 0.07*0.039)
