@@ -16,6 +16,7 @@ import os
 from dotenv import load_dotenv
 import html_contents
 import buses_and_lines
+
 network = ku_grid_model.create_network()
 
 load_dotenv()
@@ -212,6 +213,7 @@ def load_flow():
 
         # add circles to the locations of buses in the map
         bus_v_mags = {}
+        line_losses = []
         for i in range(len(bus_coords)):
             # get the bus name
             bus_name = network.buses.index.to_list()[i]
@@ -255,7 +257,13 @@ def load_flow():
             #assumed nominal capacity of the line (sqrt(3)*400*300/1000000 MVA)
             s_nom_assumed = 0.207846   
             # calculate the line percentage loading
-            percentage_loading = (math.sqrt(line_p**2 + line_q**2)/(s_nom_assumed))*100
+            s_actual = math.sqrt(line_p**2 + line_q**2)     #actual apparent power
+            percentage_loading = (s_actual/s_nom_assumed)*100
+            line_I = (s_actual*10e6)/(math.sqrt(3)*400.0)   #line current
+            line_R = buses_and_lines(line_name)     #line resistance
+            line_loss = (line_I**2)*line_R      # power loss per line
+            line_loss_3_phase = 3*line_loss     # total 3 phase power loss
+            
             line_color = ''
             dash_size = ''
             show_arrow = True
