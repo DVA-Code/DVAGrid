@@ -197,9 +197,11 @@ def on_message(client, userdata, message):
  
 # counter to count number of minutes
 minute_counter=0
+# global variables to keep records of system peak power, total power, and losses
 peak_power = 65000
-# peak_timestamp = datetime.datetime.now()
 system_total_power = 0
+system_loss_full_day = 0
+
 
 def load_flow():
     global physics_meter_total_power
@@ -211,6 +213,7 @@ def load_flow():
 
     global peak_power
     global system_total_power
+    global system_loss_full_day
     global minute_counter
     # timestamp = datetime.datetime.now()
 
@@ -224,7 +227,6 @@ def load_flow():
 
         # add circles to the locations of buses in the map
         bus_v_mags = {}
-        line_losses = []
         for i in range(len(bus_coords)):
             # get the bus name
             bus_name = network.buses.index.to_list()[i]
@@ -252,8 +254,9 @@ def load_flow():
                         popup=folium.Popup(popup_text, max_width=100)).add_to(grid_layer)
             bus_v_mags[f'{bus_name}'] = [v_mag_pu, V_mag_diff]
     
-        # add lines
+
         line_loading = {}
+        total_system_loss = 0
         for index, row in network.lines.iterrows():
             # get the name of the line
             line_name = index
@@ -269,11 +272,15 @@ def load_flow():
             s_nom_assumed = 0.207846   
             # calculate the line percentage loading
             s_actual = math.sqrt(line_p**2 + line_q**2)     #actual apparent power
+            # print(f"{line_name}: actual apparent power = {s_actual}")
             percentage_loading = (s_actual/s_nom_assumed)*100
             line_I = (s_actual*10e6)/(math.sqrt(3)*400.0)   #line current
-            line_R = buses_and_lines(line_name)     #line resistance
+            line_I = line_I/3   #per phase current
+            line_R = buses_and_lines.get_line_resistance(line_name)     #line resistance
             line_loss = (line_I**2)*line_R      # power loss per line
             line_loss_3_phase = 3*line_loss     # total 3 phase power loss
+            # print(f"{line_name}: current = {line_I} A, resistance = {line_R}ohm,  line loss = {line_loss_3_phase:.2f} W")
+            total_system_loss = total_system_loss+line_loss_3_phase
             line_color = ''
             dash_size = ''
             show_arrow = True
@@ -452,29 +459,27 @@ def load_flow():
         
         time.sleep(60)
         system_total_power = system_total_power+transformer_meter_total_power/1000
+        system_loss_full_day = system_loss_full_day+total_system_loss
         if transformer_meter_total_power > peak_power:
             print(f"peak power changed from {peak_power/1000} kW to {transformer_meter_total_power/1000} kW")
             peak_power = transformer_meter_total_power
             peak_timestamp = datetime.datetime.now()
         minute_counter = minute_counter+1
-        if minute_counter==3:
-            minute_counter=0
-            daily_average_power = system_total_power/(3)
+        print(f"total system loss = {total_system_loss/1000:.2f} kW")
+        if minute_counter==(24*60):
+            daily_average_power = system_total_power/(24*60)
             daily_peak_power = peak_power
+            print(f"daily average power = {daily_average_power:.3f} kW")
+            print(f"daily_peak_power = {daily_peak_power/1000} kW")
+            print(f"daily peak timestamp = {peak_timestamp.strftime("%Y-%m-%d %H:%M:%S")}")
+            print(f"system full day loss = {system_loss_full_day/(60.0*1000)} kWh")
+            minute_counter=0
             # reset the system total power
             system_total_power = 0
             # reset the peak power to 65 kW
             peak_power = 65000
-            print(f"daily average power = {daily_average_power:.3f} kW")
-            print(f"daily_peak_power = {daily_peak_power/1000} kW")
-            print(f"daily peak timestamp = {peak_timestamp.strftime("%Y-%m-%d %H:%M:%S")}")
+            system_loss_full_day = 0
             
-
-
-# def peak_and_average_power():
-#     global transformer_meter_total_power
-    
-#     pass
 
 #create a thread to handle the data operations
 #so that data fetching and manipulation run independently

@@ -3,3 +3,5 @@ new.py
 venv
 __pycache__
 ../tool.xlsm
+.vs
+desktop.ini
