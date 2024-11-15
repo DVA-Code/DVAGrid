@@ -463,16 +463,18 @@ def load_flow():
         if transformer_meter_total_power > peak_power:
             print(f"peak power changed from {peak_power/1000} kW to {transformer_meter_total_power/1000} kW")
             peak_power = transformer_meter_total_power
+            peak_loss = total_system_loss
             peak_timestamp = datetime.datetime.now()
         minute_counter = minute_counter+1
         print(f"total system loss = {total_system_loss/1000:.2f} kW")
-        if minute_counter==(24*60):
+        if minute_counter==(1):
             daily_average_power = system_total_power/(24*60)
             daily_peak_power = peak_power
             print(f"daily average power = {daily_average_power:.3f} kW")
             print(f"daily_peak_power = {daily_peak_power/1000} kW")
             print(f"daily peak timestamp = {peak_timestamp.strftime("%Y-%m-%d %H:%M:%S")}")
             print(f"system full day loss = {system_loss_full_day/(60.0*1000)} kWh")
+            print(f"system peak loss = {peak_loss/1000:.2f} kW")
             minute_counter=0
             # reset the system total power
             system_total_power = 0
