@@ -23,7 +23,7 @@ This project is currently maintained by the Distribution Visualization and Autom
 
 
 ## Dependencies
-DisViz heavily relies on the following Python packages:
+DVAGrid relies on the following Python packages:
 * [PyPSA](https://pypsa.org/) for network modelling and power flow calculations.
 * [Folium](https://pypi.org/project/folium/) for creating static and dynamic visualizations.
 * [paho-mqtt](https://pypi.org/project/paho-mqtt/) to retrieve smart meter data from the cloud.
