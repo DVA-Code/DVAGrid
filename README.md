@@ -1,7 +1,7 @@
 
-# DisViz
+# DVAGrid
 
-DisViz is a platform for real-time geographical visualization of electricity distribution grids. It is created using the open source toolboxes of Python. 
+DVAGrid is a platform for real-time geographical visualization of electricity distribution grids. It is created using the open source toolboxes of Python. 
 
 This project is currently maintained by the Distribution Visualization and Automation [(D-VA)](https://dva.ku.edu.np/) group at the Department of Electrical and Electronics Engineering, [Kathmandu University](https://ku.edu.np/). 
 
