@@ -14,11 +14,15 @@ This project is currently maintained by the Distribution Visualization and Autom
 3. The main python file extracts data from cloud using the MQTT protocol and converts it into JSON format. 
 4. Every minute, the main program runs a power flow simulation of the model using new data and calculates voltage magnitude, phase angle, power flow through lines, and line percentage loadings.
 5. The main program then generates a web file containing the geographic map of the distribution grid along with its near real-time status. 
+
 ## Screenshots
 
 ![complete map](https://github.com/DVA-Code/Distribution-System-Visualization/assets/95348489/d465653c-bc75-48da-b257-2263bba0c68a)
 ![line tool tip](https://github.com/DVA-Code/Distribution-System-Visualization/assets/95348489/bcb382cd-9cf3-47e1-9619-30d16e94c552)
 ![bus pop up](https://github.com/DVA-Code/Distribution-System-Visualization/assets/95348489/3c9779b9-45a0-42d0-926f-f30cfbe78967)
+![infographics page](https://github.com/DVA-Code/DVAGrid/blob/master/Python%20implementation/images/infographics_page.png?raw=true)
+
+
 
 
 
